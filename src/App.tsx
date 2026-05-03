@@ -40,10 +40,7 @@ function App() {
   useEffect(() => {
     const preventContextMenu = (event: MouseEvent) => event.preventDefault();
     document.addEventListener("contextmenu", preventContextMenu);
-
-    return () => {
-      document.removeEventListener("contextmenu", preventContextMenu);
-    };
+    return () => document.removeEventListener("contextmenu", preventContextMenu);
   }, []);
 
   async function refreshMonthEvents() {
@@ -105,9 +102,7 @@ function App() {
   async function handleCreateEvent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!title.trim()) {
-      return;
-    }
+    if (!title.trim()) return;
 
     const input: CreateEventInput = {
       date: selectedDateKey,
@@ -156,19 +151,25 @@ function App() {
   return (
     <div className="app-shell">
       <header className="top-bar">
-        <div className="brand-block">
-          <span className="eyebrow">Seoldam Calendar Classic</span>
-          <h1>{format(currentMonth, "yyyy년 M월", { locale: ko })}</h1>
+        <div className="time-cluster">
+          <strong>{format(now, "HH:mm")}</strong>
+          <div>
+            <span>{format(now, "yyyy년 M월 d일 (E)", { locale: ko })}</span>
+            <small>Seoldam Calendar Classic</small>
+          </div>
         </div>
 
         <nav className="top-nav" aria-label="메인 메뉴">
-          <button className={view === "calendar" ? "active" : ""} onClick={() => setView("calendar")}>캘린더</button>
-          <button className={view === "settings" ? "active" : ""} onClick={() => setView("settings")}>설정</button>
+          <button className={view === "calendar" ? "active" : ""} onClick={() => setView("calendar")}>▣ 캘린더</button>
+          <button className={view === "settings" ? "active" : ""} onClick={() => setView("settings")}>⚙ 설정</button>
         </nav>
 
-        <div className="clock-block">
-          <strong>{format(now, "HH:mm")}</strong>
-          <span>{format(now, "M월 d일 EEEE", { locale: ko })}</span>
+        <div className="mini-weather">
+          <span className="weather-icon">☀️</span>
+          <div>
+            <strong>22°C</strong>
+            <small>{settings.weather_location ?? "Seoul"} · 구름 조금</small>
+          </div>
         </div>
       </header>
 
@@ -177,14 +178,17 @@ function App() {
       {view === "calendar" ? (
         <main className="calendar-layout">
           <section className="calendar-card">
-            <div className="calendar-toolbar">
-              <button onClick={() => setCurrentMonth((date) => subMonths(date, 1))}>이전</button>
+            <div className="calendar-header">
+              <div className="month-control">
+                <button onClick={() => setCurrentMonth((date) => subMonths(date, 1))}>‹</button>
+                <button onClick={() => setCurrentMonth((date) => addMonths(date, 1))}>›</button>
+              </div>
+              <h1>{format(currentMonth, "yyyy년 M월", { locale: ko })}</h1>
               <button className="today-button" onClick={() => {
                 const today = new Date();
                 setSelectedDate(today);
                 setCurrentMonth(startOfMonth(today));
               }}>오늘</button>
-              <button onClick={() => setCurrentMonth((date) => addMonths(date, 1))}>다음</button>
             </div>
 
             <div className="weekday-grid">
@@ -210,7 +214,7 @@ function App() {
                     onClick={() => setSelectedDate(date)}
                   >
                     <span className="day-number">{format(date, "d")}</span>
-                    {count > 0 && <span className="event-count">{count}</span>}
+                    {count > 0 && <span className="event-dot" />}
                   </button>
                 );
               })}
@@ -219,25 +223,33 @@ function App() {
 
           <aside className="side-panel">
             <section className="weather-card">
-              <div>
-                <span className="eyebrow">날씨</span>
-                <h2>{settings.weather_location ?? "Seoul"}</h2>
+              <div className="weather-main">
+                <span className="weather-emoji">🌤️</span>
+                <div>
+                  <strong>22°C</strong>
+                  <p>구름 조금</p>
+                </div>
               </div>
-              <strong>22°</strong>
-              <p>맑음 · 날씨 API 연결 예정</p>
+              <div className="weather-meta">
+                <span>↑ 26°C</span>
+                <span>↓ 18°C</span>
+                <span>미세먼지 보통</span>
+              </div>
             </section>
 
             <section className="event-panel">
               <div className="panel-heading">
                 <div>
-                  <span className="eyebrow">선택한 날짜</span>
-                  <h2>{format(selectedDate, "M월 d일 EEEE", { locale: ko })}</h2>
+                  <h2>{format(selectedDate, "M월 d일 일정", { locale: ko })}</h2>
+                  <small>{format(selectedDate, "EEEE", { locale: ko })}</small>
                 </div>
               </div>
 
               <form className="event-form" onSubmit={handleCreateEvent}>
-                <input type="time" value={time} onChange={(event) => setTime(event.target.value)} aria-label="일정 시간" />
-                <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="일정 제목" aria-label="일정 제목" />
+                <div className="form-row">
+                  <input type="time" value={time} onChange={(event) => setTime(event.target.value)} aria-label="일정 시간" />
+                  <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="일정 제목" aria-label="일정 제목" />
+                </div>
                 <input type="text" value={memo} onChange={(event) => setMemo(event.target.value)} placeholder="메모 선택 입력" aria-label="일정 메모" />
                 <button type="submit" disabled={isSaving || !title.trim()}>{isSaving ? "저장 중" : "+ 일정 추가"}</button>
               </form>
@@ -248,6 +260,7 @@ function App() {
                 ) : (
                   selectedEvents.map((event) => (
                     <article className="event-item" key={event.id}>
+                      <span className={`event-marker ${event.color}`} />
                       <div>
                         <time>{event.time ?? "종일"}</time>
                         <h3>{event.title}</h3>
