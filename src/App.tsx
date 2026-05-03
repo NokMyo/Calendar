@@ -1,9 +1,11 @@
 import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useEffect, useMemo, useState } from "react";
+import { getCalendarApi } from "./services/calendarApi";
 import type { CalendarEvent, CalendarSettings, CreateEventInput } from "./types/calendar";
 
 const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+const calendarApi = getCalendarApi();
 
 function toDateKey(date: Date) {
   return format(date, "yyyy-MM-dd");
@@ -25,6 +27,7 @@ function App() {
   const [time, setTime] = useState("");
   const [memo, setMemo] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const selectedDateKey = toDateKey(selectedDate);
   const currentMonthKey = toMonthKey(currentMonth);
@@ -34,14 +37,37 @@ function App() {
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const preventContextMenu = (event: MouseEvent) => event.preventDefault();
+    document.addEventListener("contextmenu", preventContextMenu);
+
+    return () => {
+      document.removeEventListener("contextmenu", preventContextMenu);
+    };
+  }, []);
+
   async function refreshMonthEvents() {
-    const events = await window.calendarApi.events.getByMonth(currentMonthKey);
-    setMonthEvents(events);
+    try {
+      const events = await calendarApi.events.getByMonth(currentMonthKey);
+      setMonthEvents(Array.isArray(events) ? events : []);
+      setLoadError(null);
+    } catch (error) {
+      console.error(error);
+      setMonthEvents([]);
+      setLoadError("월간 일정을 불러오지 못했습니다.");
+    }
   }
 
   async function refreshSelectedEvents() {
-    const events = await window.calendarApi.events.getByDate(selectedDateKey);
-    setSelectedEvents(events);
+    try {
+      const events = await calendarApi.events.getByDate(selectedDateKey);
+      setSelectedEvents(Array.isArray(events) ? events : []);
+      setLoadError(null);
+    } catch (error) {
+      console.error(error);
+      setSelectedEvents([]);
+      setLoadError("선택한 날짜의 일정을 불러오지 못했습니다.");
+    }
   }
 
   useEffect(() => {
@@ -53,7 +79,14 @@ function App() {
   }, [selectedDateKey]);
 
   useEffect(() => {
-    window.calendarApi.settings.getAll().then(setSettings).catch(console.error);
+    calendarApi.settings
+      .getAll()
+      .then((nextSettings) => setSettings(nextSettings ?? {}))
+      .catch((error) => {
+        console.error(error);
+        setSettings({});
+        setLoadError("설정을 불러오지 못했습니다.");
+      });
   }, []);
 
   const calendarDays = useMemo(() => {
@@ -87,31 +120,44 @@ function App() {
     setIsSaving(true);
 
     try {
-      await window.calendarApi.events.create(input);
+      await calendarApi.events.create(input);
       setTitle("");
       setTime("");
       setMemo("");
       await Promise.all([refreshMonthEvents(), refreshSelectedEvents()]);
+    } catch (error) {
+      console.error(error);
+      setLoadError("일정을 저장하지 못했습니다.");
     } finally {
       setIsSaving(false);
     }
   }
 
   async function handleDeleteEvent(id: number) {
-    await window.calendarApi.events.delete(id);
-    await Promise.all([refreshMonthEvents(), refreshSelectedEvents()]);
+    try {
+      await calendarApi.events.delete(id);
+      await Promise.all([refreshMonthEvents(), refreshSelectedEvents()]);
+    } catch (error) {
+      console.error(error);
+      setLoadError("일정을 삭제하지 못했습니다.");
+    }
   }
 
   async function handleSettingChange(key: string, value: string) {
-    await window.calendarApi.settings.set(key, value);
-    setSettings((previous) => ({ ...previous, [key]: value }));
+    try {
+      await calendarApi.settings.set(key, value);
+      setSettings((previous) => ({ ...previous, [key]: value }));
+    } catch (error) {
+      console.error(error);
+      setLoadError("설정을 저장하지 못했습니다.");
+    }
   }
 
   return (
     <div className="app-shell">
       <header className="top-bar">
         <div className="brand-block">
-          <span className="eyebrow">Smart Wall Calendar</span>
+          <span className="eyebrow">Seoldam Calendar Classic</span>
           <h1>{format(currentMonth, "yyyy년 M월", { locale: ko })}</h1>
         </div>
 
@@ -125,6 +171,8 @@ function App() {
           <span>{format(now, "M월 d일 EEEE", { locale: ko })}</span>
         </div>
       </header>
+
+      {loadError && <div className="error-toast">{loadError}</div>}
 
       {view === "calendar" ? (
         <main className="calendar-layout">
@@ -251,8 +299,8 @@ function App() {
           <section className="settings-card danger-zone">
             <span className="eyebrow">System</span>
             <h2>종료</h2>
-            <button onClick={() => void window.calendarApi.app.reload()}>새로고침</button>
-            <button onClick={() => void window.calendarApi.app.quit()}>프로그램 종료</button>
+            <button onClick={() => void calendarApi.app.reload()}>새로고침</button>
+            <button onClick={() => void calendarApi.app.quit()}>프로그램 종료</button>
           </section>
         </main>
       )}
