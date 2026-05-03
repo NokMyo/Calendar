@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+APP_NAME="Seoldam Calendar Classic Installer"
 APP_REPO="${APP_REPO:-https://github.com/NokMyo/calendar.git}"
 APP_DIR="${APP_DIR:-$HOME/calendar}"
 NODE_MAJOR="${NODE_MAJOR:-20}"
@@ -31,7 +32,7 @@ TOTAL_STEPS=8
 print_banner() {
   printf '\n'
   printf '%b\n' "${CYAN}╭────────────────────────────────────────────╮${RESET}"
-  printf '%b\n' "${CYAN}│${RESET} ${BOLD}Smart Wall Calendar Installer${RESET}          ${CYAN}│${RESET}"
+  printf '%b%-44s%b\n' "${CYAN}│${RESET} ${BOLD}" "$APP_NAME" "${RESET}${CYAN}│${RESET}"
   printf '%b\n' "${CYAN}│${RESET} Raspberry Pi OS 64-bit ARM64 target ${CYAN}│${RESET}"
   printf '%b\n' "${CYAN}╰────────────────────────────────────────────╯${RESET}"
   printf '\n'
