@@ -24,12 +24,12 @@ function createMainWindow() {
     height: 768,
     minWidth: 1024,
     minHeight: 600,
-    backgroundColor: "#f5f0e8",
+    backgroundColor: "#f7f8fb",
     title: "Seoldam Calendar Classic",
     fullscreen: isKiosk,
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false
     }
