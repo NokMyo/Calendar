@@ -1,6 +1,6 @@
 # Smart Wall Calendar
 
-Raspberry Pi / DietPi ARM64에서 터치스크린 기반으로 사용할 벽걸이 스마트 캘린더 프로그램입니다.
+Raspberry Pi OS 64-bit ARM64에서 터치스크린 기반으로 사용할 벽걸이 스마트 캘린더 프로그램입니다.
 
 현재 스택은 **TypeScript + React + Electron + SQLite**입니다. 화면은 React가 담당하고, 앱 실행과 파일 접근은 Electron이 담당하며, 일정과 설정은 SQLite에 저장합니다.
 
@@ -13,9 +13,19 @@ Raspberry Pi / DietPi ARM64에서 터치스크린 기반으로 사용할 벽걸�
 - Vite
 - date-fns
 
+## 권장 실행 환경
+
+- Raspberry Pi OS 64-bit
+- Raspberry Pi 4 4GB 이상 권장
+- 터치스크린
+- X11/LXDE/LXQt 같은 그래픽 환경
+- 인터넷 연결
+
+GUI가 없는 Lite 환경에서는 앱 화면이 바로 뜨지 않습니다. Lite를 쓸 경우 최소 그래픽 환경을 따로 설치해야 합니다.
+
 ## 원명령어 설치
 
-아래 명령어 한 줄로 필요한 패키지 설치, 저장소 다운로드, 의존성 설치, 빌드까지 진행합니다.
+아래 명령어 한 줄로 필요한 패키지 설치, Node.js 설치, 저장소 다운로드, 의존성 설치, 빌드까지 진행합니다.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/NokMyo/calendar/main/scripts/install.sh | bash
@@ -38,7 +48,7 @@ cd calendar
 npm install
 ```
 
-DietPi / Raspberry Pi OS Lite 계열에서는 Node.js, npm, 그리고 최소 그래픽 환경이 필요합니다. 터치스크린에서 실제로 쓰려면 X11/LXDE/LXQt 같은 가벼운 데스크톱 환경 위에서 실행하는 구성을 권장합니다.
+Raspberry Pi OS Lite 계열에서는 Node.js, npm, 그리고 최소 그래픽 환경이 필요합니다. 터치스크린에서 실제로 쓰려면 X11/LXDE/LXQt 같은 가벼운 데스크톱 환경 위에서 실행하는 구성을 권장합니다.
 
 ## 개발 실행
 
@@ -79,7 +89,7 @@ SQLite DB는 Electron의 `userData` 경로 아래에 생성됩니다.
 userData/data/calendar.db
 ```
 
-Linux / DietPi 환경에서는 보통 아래 계열 경로에 저장됩니다.
+Linux / Raspberry Pi OS 환경에서는 보통 아래 계열 경로에 저장됩니다.
 
 ```txt
 ~/.config/smart-wall-calendar/data/calendar.db
@@ -109,7 +119,7 @@ calendar/
 
 ## 다음 작업 후보
 
-- ARM64 자동 실행 설정
+- Raspberry Pi OS 자동 실행 설정
 - 터치스크린 전용 UI 개선
 - 일정 추가 팝업 개선
 - 날씨 API 실제 연결
