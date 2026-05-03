@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-electron/
+.DS_Store
+.env
+.env.local
+*.log
+data/*.db
+data/*.db-shm
+data/*.db-wal
