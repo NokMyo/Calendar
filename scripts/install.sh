@@ -45,26 +45,26 @@ section() {
 }
 
 info() {
-  printf '%b\n' "${CYAN}ℹ${RESET} $1"
+  printf '%b\n' "${CYAN}i${RESET} $1"
 }
 
 success() {
-  printf '%b\n' "${GREEN}✓${RESET} $1"
+  printf '%b\n' "${GREEN}+${RESET} $1"
 }
 
 warn() {
-  printf '%b\n' "${YELLOW}⚠${RESET} $1"
+  printf '%b\n' "${YELLOW}!${RESET} $1"
 }
 
 fail() {
-  printf '%b\n' "${RED}✕${RESET} $1" >&2
+  printf '%b\n' "${RED}x${RESET} $1" >&2
 }
 
 on_error() {
   local exit_code=$?
   printf '\n'
-  fail "설치 중 오류가 발생했습니다. 종료 코드: ${exit_code}"
-  info "오류가 난 줄 위쪽의 메시지를 확인해 주세요."
+  fail "Installation failed. Exit code: ${exit_code}"
+  info "Check the message above to find where it failed."
   exit "$exit_code"
 }
 
@@ -72,7 +72,7 @@ trap on_error ERR
 
 need_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
-    fail "필요한 명령어를 찾지 못했습니다: $1"
+    fail "Required command not found: $1"
     exit 1
   fi
 }
@@ -91,28 +91,28 @@ pick_package() {
 
 print_banner
 
-section "실행 환경 확인"
+section "Checking environment"
 if ! command -v sudo >/dev/null 2>&1; then
-  fail "sudo가 필요합니다. Raspberry Pi OS 기본 사용자 환경에서 다시 실행해 주세요."
+  fail "sudo is required. Please run this script from the default Raspberry Pi OS user environment."
   exit 1
 fi
-success "sudo 확인 완료"
+success "sudo is available"
 
 ARCH="$(uname -m)"
 if [ "$ARCH" != "aarch64" ] && [ "$ARCH" != "arm64" ]; then
-  warn "현재 아키텍처는 $ARCH 입니다. 이 스크립트는 Raspberry Pi OS 64-bit ARM64 기준입니다."
+  warn "Current architecture is $ARCH. This script targets Raspberry Pi OS 64-bit ARM64."
 else
-  success "ARM64 환경 확인: $ARCH"
+  success "ARM64 environment detected: $ARCH"
 fi
 
-info "설치 경로: $APP_DIR"
-info "저장소: $APP_REPO"
+info "Install path: $APP_DIR"
+info "Repository: $APP_REPO"
 
-section "패키지 목록 업데이트"
+section "Updating package lists"
 sudo apt-get update
-success "패키지 목록 업데이트 완료"
+success "Package lists updated"
 
-section "기본 도구 설치"
+section "Installing base tools"
 sudo apt-get install -y \
   ca-certificates \
   curl \
@@ -121,19 +121,19 @@ sudo apt-get install -y \
   build-essential \
   python3 \
   pkg-config
-success "기본 도구 설치 완료"
+success "Base tools installed"
 
-section "Node.js ${NODE_MAJOR}.x 저장소 준비"
+section "Preparing Node.js ${NODE_MAJOR}.x repository"
 curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | sudo -E bash -
-success "Node.js 저장소 준비 완료"
+success "Node.js repository is ready"
 
-section "Electron 실행 라이브러리 설치"
+section "Installing Electron runtime libraries"
 ASOUND_PACKAGE="$(pick_package libasound2t64 libasound2)"
 if [ -z "$ASOUND_PACKAGE" ]; then
-  fail "설치 가능한 ALSA 라이브러리 패키지를 찾지 못했습니다. libasound2t64 또는 libasound2가 필요합니다."
+  fail "No installable ALSA library package found. libasound2t64 or libasound2 is required."
   exit 1
 fi
-info "ALSA 패키지 선택: $ASOUND_PACKAGE"
+info "Selected ALSA package: $ASOUND_PACKAGE"
 
 sudo apt-get install -y \
   nodejs \
@@ -148,39 +148,39 @@ sudo apt-get install -y \
   libxcomposite1 \
   libxdamage1 \
   libxrandr2
-success "Node.js와 Electron 실행 라이브러리 설치 완료"
+success "Node.js and Electron runtime libraries installed"
 
 need_command git
 need_command node
 need_command npm
-success "Node 버전: $(node --version)"
-success "npm 버전: $(npm --version)"
+success "Node version: $(node --version)"
+success "npm version: $(npm --version)"
 
-section "calendar 저장소 준비"
+section "Preparing calendar repository"
 if [ -d "$APP_DIR/.git" ]; then
-  info "기존 저장소가 있어 최신 상태로 업데이트합니다."
+  info "Existing repository found. Updating it now."
   cd "$APP_DIR"
   git pull --ff-only
 else
-  info "새로 저장소를 다운로드합니다."
+  info "Cloning repository."
   rm -rf "$APP_DIR"
   git clone "$APP_REPO" "$APP_DIR"
   cd "$APP_DIR"
 fi
-success "저장소 준비 완료"
+success "Repository is ready"
 
-section "Node 의존성 설치"
+section "Installing Node dependencies"
 npm install
-success "의존성 설치 완료"
+success "Node dependencies installed"
 
-section "앱 빌드"
+section "Building app"
 npm run build
-success "앱 빌드 완료"
+success "App build completed"
 
 printf '\n%b\n' "${GREEN}╭────────────────────────────────────────────╮${RESET}"
-printf '%b\n' "${GREEN}│${RESET} ${BOLD}설치가 완료되었습니다.${RESET}                    ${GREEN}│${RESET}"
+printf '%b\n' "${GREEN}│${RESET} ${BOLD}Installation completed.${RESET}                  ${GREEN}│${RESET}"
 printf '%b\n' "${GREEN}╰────────────────────────────────────────────╯${RESET}"
 printf '\n'
-printf '%b\n' "실행 명령어:"
+printf '%b\n' "Run command:"
 printf '%b\n' "${BOLD}cd $APP_DIR && npm start${RESET}"
 printf '\n'
