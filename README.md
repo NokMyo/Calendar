@@ -13,9 +13,24 @@ Raspberry Pi / DietPi ARM64에서 터치스크린 기반으로 사용할 벽걸�
 - Vite
 - date-fns
 
-## 설치
+## 원명령어 설치
 
-먼저 저장소를 받은 뒤 의존성을 설치합니다.
+아래 명령어 한 줄로 필요한 패키지 설치, 저장소 다운로드, 의존성 설치, 빌드까지 진행합니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NokMyo/calendar/main/scripts/install.sh | bash
+```
+
+설치가 끝난 뒤에는 아래 명령어로 실행합니다.
+
+```bash
+cd ~/calendar
+npm start
+```
+
+## 수동 설치
+
+직접 설치하려면 저장소를 받은 뒤 의존성을 설치합니다.
 
 ```bash
 git clone https://github.com/NokMyo/calendar.git
@@ -78,6 +93,8 @@ calendar/
 │  ├─ main.ts          # Electron 창 생성과 IPC 처리
 │  ├─ preload.ts       # React에서 사용할 안전한 API 노출
 │  └─ database.ts      # SQLite 연결, 테이블 생성, 일정/설정 저장
+├─ scripts/
+│  └─ install.sh       # 원명령어 설치 스크립트
 ├─ src/
 │  ├─ App.tsx          # 캘린더 메인 화면
 │  ├─ main.tsx         # React 진입점
@@ -92,7 +109,7 @@ calendar/
 
 ## 다음 작업 후보
 
-- DietPi ARM64 자동 실행 설정
+- ARM64 자동 실행 설정
 - 터치스크린 전용 UI 개선
 - 일정 추가 팝업 개선
 - 날씨 API 실제 연결
