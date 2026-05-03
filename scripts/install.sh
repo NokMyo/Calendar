@@ -28,20 +28,21 @@ fi
 
 STEP=0
 TOTAL_STEPS=8
+LINE="--------------------------------------------"
 
 print_banner() {
   printf '\n'
-  printf '%b\n' "${WHITE}╭────────────────────────────────────────────╮${RESET}"
-  printf '%b%-44s%b\n' "${WHITE}│${RESET} ${BOLD}" "$APP_NAME" "${RESET}${WHITE}│${RESET}"
-  printf '%b\n' "${WHITE}│${RESET} Raspberry Pi OS 64-bit ARM64 target ${WHITE}│${RESET}"
-  printf '%b\n' "${WHITE}╰────────────────────────────────────────────╯${RESET}"
+  printf '%b\n' "${WHITE}+--------------------------------------------+${RESET}"
+  printf '%b%-44s%b\n' "${WHITE}|${RESET} ${BOLD}" "$APP_NAME" "${RESET}${WHITE}|${RESET}"
+  printf '%b\n' "${WHITE}|${RESET} Raspberry Pi OS 64-bit ARM64 target ${WHITE}|${RESET}"
+  printf '%b\n' "${WHITE}+--------------------------------------------+${RESET}"
   printf '\n'
 }
 
 section() {
   STEP=$((STEP + 1))
-  printf '\n%b\n' "${WHITE}${BOLD}▶ [$STEP/$TOTAL_STEPS] $1${RESET}"
-  printf '%b\n' "${DIM}────────────────────────────────────────────${RESET}"
+  printf '\n%b\n' "${WHITE}${BOLD}> [$STEP/$TOTAL_STEPS] $1${RESET}"
+  printf '%b\n' "${DIM}${LINE}${RESET}"
 }
 
 info() {
@@ -177,9 +178,9 @@ section "Building app"
 npm run build
 success "App build completed"
 
-printf '\n%b\n' "${GREEN}╭────────────────────────────────────────────╮${RESET}"
-printf '%b\n' "${GREEN}│${RESET} ${BOLD}Installation completed.${RESET}                  ${GREEN}│${RESET}"
-printf '%b\n' "${GREEN}╰────────────────────────────────────────────╯${RESET}"
+printf '\n%b\n' "${GREEN}+--------------------------------------------+${RESET}"
+printf '%b\n' "${GREEN}|${RESET} ${BOLD}Installation completed.${RESET}                  ${GREEN}|${RESET}"
+printf '%b\n' "${GREEN}+--------------------------------------------+${RESET}"
 printf '\n'
 printf '%b\n' "Run command:"
 printf '%b\n' "${BOLD}cd $APP_DIR && npm start${RESET}"
