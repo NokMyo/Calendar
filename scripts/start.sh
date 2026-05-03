@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ELECTRON_BIN="$APP_DIR/node_modules/.bin/electron"
 SANDBOX_BIN="$APP_DIR/node_modules/electron/dist/chrome-sandbox"
+LAUNCH_MODE="${SEOLDAM_LAUNCH_MODE:-windowed}"
 
 if [ -t 1 ]; then
   BOLD="$(printf '\033[1m')"
@@ -101,6 +102,7 @@ print_banner
 
 section "Checking app directory"
 info "App path: $APP_DIR"
+info "Launch mode: $LAUNCH_MODE"
 
 if [ ! -f "$APP_DIR/package.json" ]; then
   fail "package.json was not found. Run this script inside the calendar repository."
@@ -129,5 +131,5 @@ configure_sandbox
 
 section "Starting Seoldam Calendar Classic"
 cd "$APP_DIR"
-info "Launching Electron"
-exec "$ELECTRON_BIN" . "$@"
+info "Launching Electron in $LAUNCH_MODE mode"
+SEOLDAM_LAUNCH_MODE="$LAUNCH_MODE" exec "$ELECTRON_BIN" . "$@"
