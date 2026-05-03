@@ -1,4 +1,4 @@
-# Smart Wall Calendar
+# Seoldam Calendar Classic
 
 Raspberry Pi OS 64-bit ARM64에서 터치스크린 기반으로 사용할 벽걸이 스마트 캘린더 프로그램입니다.
 
@@ -92,7 +92,7 @@ userData/data/calendar.db
 Linux / Raspberry Pi OS 환경에서는 보통 아래 계열 경로에 저장됩니다.
 
 ```txt
-~/.config/smart-wall-calendar/data/calendar.db
+~/.config/seoldam-calendar-classic/data/calendar.db
 ```
 
 ## 주요 파일 구조
