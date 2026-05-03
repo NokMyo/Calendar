@@ -10,11 +10,11 @@ if [ -t 1 ]; then
   BOLD="$(printf '\033[1m')"
   DIM="$(printf '\033[2m')"
   RESET="$(printf '\033[0m')"
-  RED="$(printf '\033[31m')"
-  GREEN="$(printf '\033[32m')"
-  YELLOW="$(printf '\033[33m')"
-  BLUE="$(printf '\033[34m')"
-  CYAN="$(printf '\033[36m')"
+  RED="$(printf '\033[91m')"
+  GREEN="$(printf '\033[92m')"
+  YELLOW="$(printf '\033[93m')"
+  CYAN="$(printf '\033[96m')"
+  WHITE="$(printf '\033[97m')"
 else
   BOLD=""
   DIM=""
@@ -22,8 +22,8 @@ else
   RED=""
   GREEN=""
   YELLOW=""
-  BLUE=""
   CYAN=""
+  WHITE=""
 fi
 
 STEP=0
@@ -31,16 +31,16 @@ TOTAL_STEPS=8
 
 print_banner() {
   printf '\n'
-  printf '%b\n' "${CYAN}╭────────────────────────────────────────────╮${RESET}"
-  printf '%b%-44s%b\n' "${CYAN}│${RESET} ${BOLD}" "$APP_NAME" "${RESET}${CYAN}│${RESET}"
-  printf '%b\n' "${CYAN}│${RESET} Raspberry Pi OS 64-bit ARM64 target ${CYAN}│${RESET}"
-  printf '%b\n' "${CYAN}╰────────────────────────────────────────────╯${RESET}"
+  printf '%b\n' "${WHITE}╭────────────────────────────────────────────╮${RESET}"
+  printf '%b%-44s%b\n' "${WHITE}│${RESET} ${BOLD}" "$APP_NAME" "${RESET}${WHITE}│${RESET}"
+  printf '%b\n' "${WHITE}│${RESET} Raspberry Pi OS 64-bit ARM64 target ${WHITE}│${RESET}"
+  printf '%b\n' "${WHITE}╰────────────────────────────────────────────╯${RESET}"
   printf '\n'
 }
 
 section() {
   STEP=$((STEP + 1))
-  printf '\n%b\n' "${BLUE}▶ [$STEP/$TOTAL_STEPS]${RESET} ${BOLD}$1${RESET}"
+  printf '\n%b\n' "${WHITE}${BOLD}▶ [$STEP/$TOTAL_STEPS] $1${RESET}"
   printf '%b\n' "${DIM}────────────────────────────────────────────${RESET}"
 }
 
