@@ -15,6 +15,8 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const isDev = Boolean(process.env.VITE_DEV_SERVER_URL);
+const launchMode = process.env.SEOLDAM_LAUNCH_MODE ?? "windowed";
+const isKiosk = launchMode === "kiosk";
 
 function createMainWindow() {
   const window = new BrowserWindow({
@@ -23,8 +25,8 @@ function createMainWindow() {
     minWidth: 1024,
     minHeight: 600,
     backgroundColor: "#f5f0e8",
-    title: "Smart Wall Calendar",
-    fullscreen: !isDev,
+    title: "Seoldam Calendar Classic",
+    fullscreen: isKiosk,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
