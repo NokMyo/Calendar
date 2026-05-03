@@ -9,5 +9,5 @@
     "outDir": "dist-electron",
     "rootDir": "electron"
   },
-  "include": ["electron/main.ts", "electron/preload.ts", "electron/database.ts"]
+  "include": ["electron/main.ts", "electron/preload.cts", "electron/database.ts"]
 }
