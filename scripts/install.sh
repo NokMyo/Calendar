@@ -16,6 +16,18 @@ need_command() {
   fi
 }
 
+pick_package() {
+  for package_name in "$@"; do
+    if apt-cache show "$package_name" >/dev/null 2>&1; then
+      echo "$package_name"
+      return 0
+    fi
+  done
+
+  echo ""
+  return 1
+}
+
 if ! command -v sudo >/dev/null 2>&1; then
   echo "sudo가 필요합니다. Raspberry Pi OS 기본 사용자 환경에서 다시 실행해 주세요." >&2
   exit 1
@@ -42,13 +54,20 @@ sudo apt-get install -y \
 log "Node.js ${NODE_MAJOR}.x 저장소를 준비합니다."
 curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | sudo -E bash -
 
+log "Electron 실행 라이브러리 이름을 확인합니다."
+ASOUND_PACKAGE="$(pick_package libasound2t64 libasound2)"
+if [ -z "$ASOUND_PACKAGE" ]; then
+  echo "설치 가능한 ALSA 라이브러리 패키지를 찾지 못했습니다. libasound2t64 또는 libasound2가 필요합니다." >&2
+  exit 1
+fi
+
 log "Node.js와 Electron 실행 라이브러리를 설치합니다."
 sudo apt-get install -y \
   nodejs \
   libgtk-3-0 \
   libnss3 \
   libxss1 \
-  libasound2 \
+  "$ASOUND_PACKAGE" \
   libatk-bridge2.0-0 \
   libdrm2 \
   libgbm1 \
