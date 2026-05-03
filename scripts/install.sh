@@ -121,8 +121,9 @@ sudo apt-get install -y \
   gnupg \
   build-essential \
   python3 \
-  pkg-config
-success "Base tools installed"
+  pkg-config \
+  fonts-noto-cjk
+success "Base tools and Korean fonts installed"
 
 section "Preparing Node.js ${NODE_MAJOR}.x repository"
 curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | sudo -E bash -
