@@ -113,7 +113,7 @@ section "Updating package lists"
 sudo apt-get update
 success "Package lists updated"
 
-section "Installing base tools"
+section "Installing base tools and Korean fonts"
 sudo apt-get install -y \
   ca-certificates \
   curl \
@@ -122,8 +122,10 @@ sudo apt-get install -y \
   build-essential \
   python3 \
   pkg-config \
+  fontconfig \
   fonts-noto-cjk
-success "Base tools and Korean fonts installed"
+sudo fc-cache -f
+success "Base tools, fontconfig, and Korean fonts installed"
 
 section "Preparing Node.js ${NODE_MAJOR}.x repository"
 curl -fsSL "https://deb.nodesource.com/setup_${NODE_MAJOR}.x" | sudo -E bash -
