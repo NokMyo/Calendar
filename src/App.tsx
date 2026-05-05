@@ -7,12 +7,18 @@ import type { CalendarEvent, CalendarSettings, CreateEventInput } from "./types/
 const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 const calendarApi = getCalendarApi();
 
+type ViewMode = "calendar" | "weather" | "settings";
+
 function toDateKey(date: Date) {
   return format(date, "yyyy-MM-dd");
 }
 
 function toMonthKey(date: Date) {
   return format(date, "yyyy-MM");
+}
+
+function WeatherSymbol({ size = "normal" }: { size?: "small" | "normal" | "large" }) {
+  return <span className={`weather-symbol ${size}`} aria-hidden="true" />;
 }
 
 function App() {
@@ -22,7 +28,7 @@ function App() {
   const [monthEvents, setMonthEvents] = useState<CalendarEvent[]>([]);
   const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([]);
   const [settings, setSettings] = useState<CalendarSettings>({});
-  const [view, setView] = useState<"calendar" | "settings">("calendar");
+  const [view, setView] = useState<ViewMode>("calendar");
   const [title, setTitle] = useState("");
   const [time, setTime] = useState("");
   const [memo, setMemo] = useState("");
@@ -101,7 +107,6 @@ function App() {
 
   async function handleCreateEvent(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     if (!title.trim()) return;
 
     const input: CreateEventInput = {
@@ -160,12 +165,13 @@ function App() {
         </div>
 
         <nav className="top-nav" aria-label="메인 메뉴">
-          <button className={view === "calendar" ? "active" : ""} onClick={() => setView("calendar")}>▣ 캘린더</button>
-          <button className={view === "settings" ? "active" : ""} onClick={() => setView("settings")}>⚙ 설정</button>
+          <button className={view === "calendar" ? "active" : ""} onClick={() => setView("calendar")}>캘린더</button>
+          <button className={view === "weather" ? "active" : ""} onClick={() => setView("weather")}>날씨</button>
+          <button className={view === "settings" ? "active" : ""} onClick={() => setView("settings")}>설정</button>
         </nav>
 
         <div className="mini-weather">
-          <span className="weather-icon">☀️</span>
+          <WeatherSymbol size="small" />
           <div>
             <strong>22°C</strong>
             <small>{settings.weather_location ?? "Seoul"} · 구름 조금</small>
@@ -175,13 +181,13 @@ function App() {
 
       {loadError && <div className="error-toast">{loadError}</div>}
 
-      {view === "calendar" ? (
+      {view === "calendar" && (
         <main className="calendar-layout">
           <section className="calendar-card">
             <div className="calendar-header">
               <div className="month-control">
-                <button onClick={() => setCurrentMonth((date) => subMonths(date, 1))}>‹</button>
-                <button onClick={() => setCurrentMonth((date) => addMonths(date, 1))}>›</button>
+                <button onClick={() => setCurrentMonth((date) => subMonths(date, 1))} aria-label="이전 달">‹</button>
+                <button onClick={() => setCurrentMonth((date) => addMonths(date, 1))} aria-label="다음 달">›</button>
               </div>
               <h1>{format(currentMonth, "yyyy년 M월", { locale: ko })}</h1>
               <button className="today-button" onClick={() => {
@@ -192,9 +198,7 @@ function App() {
             </div>
 
             <div className="weekday-grid">
-              {weekdays.map((weekday) => (
-                <div key={weekday}>{weekday}</div>
-              ))}
+              {weekdays.map((weekday) => <div key={weekday}>{weekday}</div>)}
             </div>
 
             <div className="month-grid">
@@ -205,12 +209,7 @@ function App() {
                 return (
                   <button
                     key={dateKey}
-                    className={[
-                      "day-cell",
-                      !isSameMonth(date, currentMonth) ? "muted" : "",
-                      isToday(date) ? "today" : "",
-                      isSameDay(date, selectedDate) ? "selected" : ""
-                    ].filter(Boolean).join(" ")}
+                    className={["day-cell", !isSameMonth(date, currentMonth) ? "muted" : "", isToday(date) ? "today" : "", isSameDay(date, selectedDate) ? "selected" : ""].filter(Boolean).join(" ")}
                     onClick={() => setSelectedDate(date)}
                   >
                     <span className="day-number">{format(date, "d")}</span>
@@ -222,9 +221,9 @@ function App() {
           </section>
 
           <aside className="side-panel">
-            <section className="weather-card">
+            <section className="weather-card" onClick={() => setView("weather")} role="button" tabIndex={0}>
               <div className="weather-main">
-                <span className="weather-emoji">🌤️</span>
+                <WeatherSymbol size="normal" />
                 <div>
                   <strong>22°C</strong>
                   <p>구름 조금</p>
@@ -274,7 +273,45 @@ function App() {
             </section>
           </aside>
         </main>
-      ) : (
+      )}
+
+      {view === "weather" && (
+        <main className="weather-layout">
+          <section className="weather-hero-card">
+            <div>
+              <span className="eyebrow">Weather</span>
+              <h1>{settings.weather_location ?? "Seoul"}</h1>
+              <p>현재는 날씨 API 연결 전 임시 데이터입니다.</p>
+            </div>
+            <div className="weather-hero-status">
+              <WeatherSymbol size="large" />
+              <strong>22°C</strong>
+              <span>구름 조금</span>
+            </div>
+          </section>
+
+          <section className="weather-detail-grid">
+            <article>
+              <span>최고 / 최저</span>
+              <strong>26°C / 18°C</strong>
+            </article>
+            <article>
+              <span>미세먼지</span>
+              <strong>보통</strong>
+            </article>
+            <article>
+              <span>습도</span>
+              <strong>--%</strong>
+            </article>
+            <article>
+              <span>바람</span>
+              <strong>-- m/s</strong>
+            </article>
+          </section>
+        </main>
+      )}
+
+      {view === "settings" && (
         <main className="settings-layout">
           <section className="settings-card">
             <span className="eyebrow">Settings</span>
